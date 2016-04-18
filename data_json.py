@@ -105,17 +105,22 @@ mapping = { "St": "Street", "St.": "Street",
            "Sq.":"Square","Sq":"Square",
            "Ln.":"Lane","Ln":"Lane",
            "Tr":"Trail", "Tr.":"Trail",
-           "Cir":"Circle",
+           "Cir":"Circle",'Cir.':"Circle",
            "E":"East", "E.":"East",
            "W":"West","W.":"West",
-           "S":"South","S.":"South","N":"North","N.":"North"}
+           "S":"South","S.":"South","N":"North","N.":"North",
+           "Bl":'Boulevard',"Blvd":'Boulevard','Blvd.':'Boulevard',
+           "Dr":'Drive',
+           "Hwy":'Highway'}
+mkl = [x.lower() for x in mapping.keys()]
 
-    
+   
 def update_name(name, mapping):
     lname = name.split(' ');
     #print '***', mapping[lname[-1]]
-    if lname[-1] in mapping:
-        lname[-1]=mapping[lname[-1]]
+    lname = [x.title() for x in lname]
+    if lname[-1] in mapping or lname[-1] in mkl:
+        lname[-1]=mapping[lname[-1].title()]
         newname = " ".join(lname)
     else:
         newname = name
@@ -132,6 +137,8 @@ def get_element(osm_file,tags=('node','way','realtionship')):
             yield elem
             root.clear()
     
+#{"pos.0":{"$gte":33.298,"$lte":34.583},
+                           #"pos.1":{"$gte":-119.437,"$lte":-116.724}}},
     
 def shape_element(element):
     
@@ -139,43 +146,45 @@ def shape_element(element):
     if element.tag == "node" or element.tag == "way" :
         
         thisnode['type'] = element.tag
-        print thisnode['type']
         pos=[] # To Hold Lat and Longitiude
         creat_dict={} 
-        lat,lon=None,None
+        lat,lon=None,None # no 'pos' field if they remain none.
         
         for key in element.attrib:
             if key in CREATED:
                 creat_dict[key] = element.attrib[key]                
             elif key == 'lat':
-                lat =float(element.attrib[key])                
+                lat =float(element.attrib[key])
+                if lat < 33.298 or lat > 34.583: # check if node in LA region
+                    lat =None                    
             elif key == 'lon':
-                lon = float(element.attrib[key])                
+                lon = float(element.attrib[key])
+                if lon < -119.437 or lon > -116.724:# check if node in LA region
+                    lon = None
             elif problemchars.search(element.attrib[key]):                
                 pass
             else:
-                thisnode[key]=element.attrib[key]
-                
+                thisnode[key]=element.attrib[key]                
                     
             if lat and lon: # Update when both are populated
                 thisnode['pos']=[lat,lon]
+                
         thisnode['created'] = creat_dict
         
         if element.tag == 'way':
-            nodel = []
+            nodel = [] # list holding node_refs
             if element.text.find("nd"):
-                print 'nd tag is present',element.find('nd').text
+                #print 'nd tag is present',element.find('nd').text
                 for nd in element.iter("nd"):
                     if nd.get('ref'):
-                        print 'subND .....',nd.get("ref")
+                        #print 'subND .....',nd.get("ref")
                         nodel.append(nd.attrib["ref"])
                     thisnode['node_refs'] =nodel    
-        
-        
+              
         address ={}
         for stag in element:
             if stag.tag=="tag" and stag.get('k'):
-                print 'TAG atrrib',stag.attrib['k']                 
+                #print 'TAG atrrib',stag.attrib['k']                 
                 if stag.attrib['k'].startswith('addr'):
                         # Process only those with ':'
                     if stag.attrib['k'].count(':')==1:                                             
@@ -185,7 +194,6 @@ def shape_element(element):
                         ##### CURATE the streets ###
                         if addritem == 'street':
                             address[addritem] = update_name(stag.attrib['v'],mapping)
-                            ###########################
                         #else we do nothing (i.e. if the ':' count is not 1 ) 
                             
                     # only non address tags here      
@@ -199,7 +207,9 @@ def shape_element(element):
             thisnode['address']=address
         #print '.........................'        
         #pprint.pprint(thisnode)
-        return thisnode
+            
+        if 'pos' in thisnode:
+            return thisnode
     else:
         return None
 
@@ -226,10 +236,10 @@ def test():
     # NOTE: if you are running this code on your computer, with a larger dataset, 
     # call the process_map procedure with pretty=False. The pretty=True option adds 
     # additional spaces to the output, making it significantly larger.
-    #data = process_map('../los-angeles_california.osm', False)
-    data = process_map('../example.osm', False)
+    data = process_map('../los-angeles_california.osm', False)
+    #data = process_map('../example.osm', False)
     print 'aaaaaaaaaaaaaaa'    
-    pprint.pprint(data[0:3])
+    pprint.pprint(data[0:25])
     
 #    correct_first_elem = {
 #        "id": "261114295", 
