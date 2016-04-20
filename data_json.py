@@ -151,6 +151,8 @@ def shape_element(element):
         lat,lon=None,None # no 'pos' field if they remain none.
         
         for key in element.attrib:
+            #if thisnode['type'] =='node' and element.attrib['id'] == "97424441":
+                #print '*******', key
             if key in CREATED:
                 creat_dict[key] = element.attrib[key]                
             elif key == 'lat':
@@ -164,10 +166,11 @@ def shape_element(element):
             elif problemchars.search(element.attrib[key]):                
                 pass
             else:
+                #print key,'==>>',element.attrib[key]                
                 thisnode[key]=element.attrib[key]                
                     
             if lat and lon: # Update when both are populated
-                thisnode['pos']=[lat,lon]
+                thisnode['pos']=[lon,lat]
                 
         thisnode['created'] = creat_dict
         
@@ -184,7 +187,7 @@ def shape_element(element):
         address ={}
         for stag in element:
             if stag.tag=="tag" and stag.get('k'):
-                #print 'TAG atrrib',stag.attrib['k']                 
+                print 'TAG atrrib',stag.attrib['k']                 
                 if stag.attrib['k'].startswith('addr'):
                         # Process only those with ':'
                     if stag.attrib['k'].count(':')==1:                                             
@@ -236,8 +239,8 @@ def test():
     # NOTE: if you are running this code on your computer, with a larger dataset, 
     # call the process_map procedure with pretty=False. The pretty=True option adds 
     # additional spaces to the output, making it significantly larger.
-    data = process_map('../los-angeles_california.osm', False)
-    #data = process_map('../example.osm', False)
+    #data = process_map('../los-angeles_california.osm', False)
+    data = process_map('../example.osm', False)
     print 'aaaaaaaaaaaaaaa'    
     pprint.pprint(data[0:25])
     
