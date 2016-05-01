@@ -1,0 +1,11 @@
+https://docs.mongodb.org/manual/core/2dsphere/
+http://stackoverflow.com/questions/25584279/combine-geonear-query-with-another-query-for-a-value
+http://stackoverflow.com/questions/24383448/how-to-sort-by-other-field-in-geonear-aggregation-pipeline-in-mongodb
+http://stackoverflow.com/questions/8857276/how-do-i-drop-a-mongodb-database-from-the-command-line
+http://stackoverflow.com/questions/24294273/mongodb-query-a-json-object-nested-in-an-array
+http://effbot.org/elementtree/iterparse.htm
+http://effbot.org/zone/element.htm
+http://stackoverflow.com/questions/12792998/elementtree-iterparse-strategy
+https://sourceforge.net/p/ipython/discussion/markdown_syntax#md_ex_bq
+https://docs.mongodb.org/manual/reference/command/collStats/
+http://stackoverflow.com/questions/10610131/checking-if-a-field-contains-a-string 

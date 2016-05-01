@@ -111,7 +111,7 @@ mapping = { "St": "Street", "St.": "Street",
            "S":"South","S.":"South","N":"North","N.":"North",
            "Bl":'Boulevard',"Blvd":'Boulevard','Blvd.':'Boulevard',
            "Dr":'Drive',
-           "Hwy":'Highway'}
+           "Hwy":'Highway',"Wy": "Way"}
 mkl = [x.lower() for x in mapping.keys()]
 
    
@@ -137,9 +137,7 @@ def get_element(osm_file,tags=('node','way','realtionship')):
             yield elem
             root.clear()
     
-#{"pos.0":{"$gte":33.298,"$lte":34.583},
-                           #"pos.1":{"$gte":-119.437,"$lte":-116.724}}},
-    
+   
 def shape_element(element):
     
     thisnode = {}
@@ -169,25 +167,18 @@ def shape_element(element):
                 #print key,'==>>',element.attrib[key]                
                 thisnode[key]=element.attrib[key]                
                     
-            if lat and lon: # Update when both are populated
-                thisnode['pos']=[lon,lat]
+        if lat and lon: # Update when both are populated
+            thisnode['pos']=[lon,lat]
+            #print 'position', thisnode['pos']
                 
         thisnode['created'] = creat_dict
         
-        if element.tag == 'way':
-            nodel = [] # list holding node_refs
-            if element.text.find("nd"):
-                #print 'nd tag is present',element.find('nd').text
-                for nd in element.iter("nd"):
-                    if nd.get('ref'):
-                        #print 'subND .....',nd.get("ref")
-                        nodel.append(nd.attrib["ref"])
-                    thisnode['node_refs'] =nodel    
-              
+        nodel = []
         address ={}
         for stag in element:
+            #print 'TAG atrrib',stag.attrib['k']
             if stag.tag=="tag" and stag.get('k'):
-                print 'TAG atrrib',stag.attrib['k']                 
+                                 
                 if stag.attrib['k'].startswith('addr'):
                         # Process only those with ':'
                     if stag.attrib['k'].count(':')==1:                                             
@@ -197,22 +188,33 @@ def shape_element(element):
                         ##### CURATE the streets ###
                         if addritem == 'street':
                             address[addritem] = update_name(stag.attrib['v'],mapping)
-                        #else we do nothing (i.e. if the ':' count is not 1 ) 
-                            
+                        #else we do nothing (i.e. if the ':' count is not 1 )                            
                     # only non address tags here      
                     elif stag.attrib['k'].count(':')>1: 
                         pass
                         #print tag.attrib['v']
                         #if is_street_name(tag):
-                        #    audit_street_type(street_types, tag.attrib['v'])         
-        if address: # Since address can be empty {}. update only when address!
+                        #    audit_street_type(street_types, tag.attrib['v'])
+                else:
+                   thisnode[stag.attrib['k']]=stag.attrib['v']
+            elif stag.tag == 'nd' and element.tag=='way':
+                #print '*******',stag.attrib['ref']
+                if stag.get('ref'):
+                    #print 'inside',stag.attrib['ref']
+                    nodel.append(stag.attrib["ref"])
+                    
+        if len(nodel)>0: # Update only if nodel was populated
+            #print nodel
+            thisnode['node_refs'] = nodel               
+                   
+        if address: # Since address can be empty {}. update only when address exists!
             #pprint.pprint(address)        
             thisnode['address']=address
         #print '.........................'        
         #pprint.pprint(thisnode)
             
-        if 'pos' in thisnode:
-            return thisnode
+    if (thisnode['type'] == 'node' and 'pos' in thisnode) or thisnode['type'] == 'way':
+        return thisnode
     else:
         return None
 
@@ -239,8 +241,8 @@ def test():
     # NOTE: if you are running this code on your computer, with a larger dataset, 
     # call the process_map procedure with pretty=False. The pretty=True option adds 
     # additional spaces to the output, making it significantly larger.
-    #data = process_map('../los-angeles_california.osm', False)
-    data = process_map('../example.osm', False)
+    data = process_map('los-angeles_california.osm', False)
+    #data = process_map('../example.osm', False)
     print 'aaaaaaaaaaaaaaa'    
     pprint.pprint(data[0:25])
     

@@ -32,14 +32,11 @@ def key_type(element, keys,i):
    
     if element.tag == "tag":
         elestr = element.attrib['k']
-        #print elestr
         if problemchars.search(elestr):
             keys["problemchars"]+=1
-            #print elestr, '=>=>=>',element.attrib['v'] 
+            print elestr, '=>=>=>',element.attrib['v'] 
         elif lower_colon.search(elestr):
-            keys["lower_colon"]+=1     
-            #if 'is_in' in elestr and not 'city' in elestr :
-                #print elestr, '=>=>=>',element.attrib['v']
+            keys["lower_colon"]+=1
         elif lower.search(elestr):
             keys["lower"]+=1           
         else:
@@ -50,12 +47,7 @@ def key_type(element, keys,i):
         for k in element.attrib:
             if not k in CREATED:
                 elestr = element.attrib[k]
-            #if problemchars.search(k):
-                print k,elestr
-                    
-         
-        #if np.mod(i,2000)==0:
-            #print elestr
+                print k,elestr, '*****', element.tag       
     return keys,i
 
 
@@ -67,16 +59,11 @@ def process_map(filename):
         element.clear()        
     return keys
 
-
-
 def test():
-    # You can use another testfile 'map.osm' to look at your solution
-    # Note that the assertion below will be incorrect then.
-    # Note as well that the test function here is only used in the Test Run;
-    # when you submit, your code will be checked against a different dataset.
+    
     keys = process_map('../los-angeles_california.osm')
     pprint.pprint(keys)
-    #assert keys == {'lower': 5, 'lower_colon': 0, 'other': 1, 'problemchars': 1}
+    
 
 
 if __name__ == "__main__":

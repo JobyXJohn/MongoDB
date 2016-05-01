@@ -1,0 +1,6 @@
+The OSM file los-angeles_california.osm.bz2 was obtained from
+https://mapzen.com/data/metro-extracts/
+
+This data set was chosen because I live in the area and 
+it is a fairly large metro area that provides a rich and large data set.
+The size of the unzipped file was close 1.9 GB. 

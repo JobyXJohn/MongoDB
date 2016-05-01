@@ -23,6 +23,7 @@ import pprint
 from xml.dom.minidom import parse, parseString
 
 OSMFILE = "../los-angeles_california.osm"
+#OSMFILE = "../example.osm"
 street_type_re = re.compile(r'\b\S+\.?$', re.IGNORECASE)
 
 
@@ -59,7 +60,7 @@ def audit_city_name(city_names, city_name):
     m = street_type_re.search(city_name)
     if m:
         city_type = m.group()
-        if city_type not in 'Los Angeles':
+        if city_type not in     'Los Angeles':
             city_names[city_type].add(city_name)            
 
 
@@ -102,10 +103,10 @@ def audit(osmfile):
     return street_types,city_names
 
 
-def update_name(name, mapping,ind):
+def update_name(name, mapping):
     lname = name.split(' ');
-    #print '***', mapping[lname[-1]]
-    lname[-1].lower =mapping[ind]
+    lname[-1] =mapping[lname[-1].title()] # title ensures element in same form
+                                          # as   
     newname = " ".join(lname)
     return newname
 
@@ -115,13 +116,15 @@ def test():
     #assert len(st_types) == 3
     #pprint.pprint(dict(st_types))
     pprint.pprint(city_names)    
-    mkl = mapping.keys().lower()    
+    mkl = [x.lower() for x in mapping.keys()] # list of mapping keys in lower cs
     for st_type, ways in st_types.iteritems():
                 
         for name in ways:
-            if st_type.lower() in mkl:
-                ind = mkl.index(st_type.lower())
-                better_name = update_name(name, mapping,ind)
+            print '****',name,st_type,st_type.lower()
+            if (st_type in mapping) or (st_type.lower() in mkl):
+                #ind = mkl.index(st_type.lower())
+                #print '*********',mkl[ind].title()
+                better_name = update_name(name, mapping)
                 print name, "=>", better_name
 #           
                 
